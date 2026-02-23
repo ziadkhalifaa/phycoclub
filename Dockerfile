@@ -13,11 +13,20 @@ WORKDIR /app
 # 1) Install frontend deps + build React
 COPY package.json package-lock.json* ./
 
-# مهم: ده بيحل مشاكل dependencies اللي بتكسر npm على السيرفر
-RUN npm install --legacy-peer-deps --no-audit --no-fund
+# خلي npm ثابت وقلل مشاكل CI
+RUN npm i -g npm@11.10.1
+
+# لازم devDependencies تنزل عشان vite
+ENV NODE_ENV=development
+
+# استخدم ci لو فيه lockfile، وأجبره يثبت dev deps
+RUN npm ci --include=dev --legacy-peer-deps --no-audit --no-fund || \
+    npm install --legacy-peer-deps --no-audit --no-fund
 
 COPY . .
-RUN npm run build
+RUN npx vite build
+
+
 
 # 2) Install backend deps
 RUN pip install --no-cache-dir -r backend/requirements.txt
