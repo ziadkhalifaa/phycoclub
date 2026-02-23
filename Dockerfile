@@ -12,7 +12,9 @@ WORKDIR /app
 
 # 1) Install frontend deps + build React
 COPY package.json package-lock.json* ./
-RUN npm install
+
+# مهم: ده بيحل مشاكل dependencies اللي بتكسر npm على السيرفر
+RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 COPY . .
 RUN npm run build
